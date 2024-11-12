@@ -23,9 +23,9 @@ C:\Ruta\De\Acceso\archivo.txt
 function Get-HiddenFiles {
     param (
         [string]$Pathh
+	[string]$ReportPath
     )
-    Get-ChildItem -Path $Pathh -Force -File | Where-Object { $_.Attributes -match "Hidden" }
-
+    
      try {
         # Verifica si la carpeta existe
         if (-Not (Test-Path -Path $Pathh)) {
@@ -36,13 +36,13 @@ function Get-HiddenFiles {
         $hiddenfiles = Get-ChildItem -Path $Pathh -Force -File | Where-Object { $_.Attributes -match "Hidden" }
 
         if ($hiddenfiles) {
-            Write-Output "Archivos ocultos en '$Pathh':"
-            $hiddenfiles | ForEach-Object { Write-Output $_.FullName }
+            Write-Output "Archivos ocultos en '$Pathh':" | Out-File -FilePath $ReportPath -Append
+            $hiddenfiles | ForEach-Object { Write-Output $_.FullName | Out-File -FilePath $ReportPath -Append }
         } else {
-            Write-Output "No se encontraron archivos ocultos en '$Pathh'."
+            Write-Output "No se encontraron archivos ocultos en '$Pathh'." | Out-File -FilePath $ReportPath -Append
         }
     } catch {
-        Write-Error "Ocurrió un error: $_"
+        Write-Error "Ocurrió un error: $_" | Out-File -FilePath $ReportPath -Append
     }
 
 
@@ -51,6 +51,7 @@ function Get-HiddenFiles {
 
 # variable para ingresar la ruta de la carpeta para luego mandarla a la funcion
 $Path = Read-Host "Por favor, ingrese la ruta de la carpeta donde desea buscar archivos ocultos"
+$ReportPath = "$PSScriptRoot\Reporte_Archivos_Ocultos.txt"  
 
 # Llamamos a la funcion diciendole que la variable Path corresponde al valor Pathh de la funcion
-Get-HiddenFiles -Pathh $Path
+Get-HiddenFiles -Pathh $Path -ReportPath $ReportPath
